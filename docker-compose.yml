@@ -44,3 +44,11 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbit:${RABBITMQ_PORT}
       - CELERY_RESULT_BACKEND=redis://:${REDIS_PASS}@redis:${REDIS_PORT}/0
+  rproxy:
+    hostname: rproxy
+    image: mattes/rotating-proxy
+    environment:
+      - tors=25
+    ports:
+      - "5566:5566"
+      - "4444:4444"

@@ -13,7 +13,10 @@ app = Celery(
 app.conf.update(
   include = ['worker.tasks'],
   task_default_queue = 'default_queue',
-  task_routes = {'worker.tasks.*': {'queue': 'worker_queue'}},
+  task_routes = {
+    'worker.tasks.add_download': {'queue': 'download_queue'},
+    'worker.tasks.add_source': {'queue': 'source_queue'}
+    },
   task_default_delivery_mode = "persistent",
   result_persistent = True
 )
