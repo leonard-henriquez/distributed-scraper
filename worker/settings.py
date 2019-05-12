@@ -1,0 +1,4 @@
+from os import environ
+
+CELERY_BROKER_URL = environ["CELERY_BROKER_URL"]
+CELERY_RESULT_BACKEND = environ["CELERY_RESULT_BACKEND"]
