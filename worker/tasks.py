@@ -1,35 +1,20 @@
-import time
-from os import environ
-from time import sleep
-from hashlib import sha1
-from datetime import datetime
-from random import random
-from pymongo import MongoClient
+from requests.exceptions import ProxyError, ReadTimeout
 from .worker import app
 from .medium_scraper import get_articles_url, get_article
+from .upload import upload_article
 
-client = MongoClient('mongodb://mongo:27017/articles')
-db = client.articles
-collection = db.medium
-
-@app.task
-def add_download(url):
+@app.task(bind=True, autoretry_for=(ProxyError, ReadTimeout,), retry_backoff=5)
+def add_download(self, url):
   # Download & parse
   article = get_article(url)
 
   # Store
-  article['timestamp'] = datetime.now().timestamp()
-  article['_id'] = sha1(url.encode()).hexdigest()
-
-  try:
-    collection.insert_one(article)
-  except:
-    print("already in database")
+  upload_article(article)
 
   return True
 
-@app.task
-def add_source(tag, str_date):
+@app.task(bind=True, autoretry_for=(Exception,), retry_backoff=5)
+def add_source(self, tag, str_date):
   urls = get_articles_url(tag, str_date)
 
   for url in urls:
