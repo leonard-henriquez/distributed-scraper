@@ -1,3 +1,4 @@
+from unicodedata import normalize
 from bs4 import BeautifulSoup
 from .proxy import get_session
 
@@ -46,3 +47,59 @@ def get_articles_url(tag, str_date):
 
   # Add list elements to queue
   return urls
+
+
+###############################
+
+
+def string_sanitizer(string):
+  string = normalize('NFKD', string)
+  string = string.encode('ascii', 'ignore').decode()
+  return string
+
+def short_number_sanitizer(string):
+  string = string_sanitizer(string)
+  if len(string) == 0:
+    value = 0
+  elif string[-1] == 'K':
+    value = int(float(string[0:-1]) * 1000)
+  else:
+    value = int(string)
+  return value
+
+def get_article(url):
+  session = get_session()
+  response = session.get(url)
+
+  soup = BeautifulSoup(response.content, 'html.parser')
+
+  article = {}
+  article['url'] = url
+
+  title = soup.findAll('title')[0]
+  title = title.get_text()
+  article['title'] = string_sanitizer(title)
+
+  author = soup.findAll('meta', {"name": "author"})[0]
+  author = author.get('content')
+  article['author'] = string_sanitizer(author)
+
+  try:
+    claps = soup.findAll('button', {"data-action":"show-recommends"})[0].get_text().split()[0]
+    article['claps'] = short_number_sanitizer(claps)
+  except:
+    article['claps'] = 0
+
+  try:
+    reading_time = int(soup.findAll('span', {"class":"readingTime"})[0].get('title').split()[0])
+    article['reading_time'] = reading_time
+  except:
+    article['reading_time'] = 0
+
+  paragraphs = soup.findAll('p')
+  text = ''
+  next_line = '\n'
+  for paragraph in paragraphs:
+      text += string_sanitizer(paragraph.get_text()) + next_line
+  article['text'] = text
+  return article

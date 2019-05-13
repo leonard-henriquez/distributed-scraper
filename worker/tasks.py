@@ -6,29 +6,23 @@ from datetime import datetime
 from random import random
 from pymongo import MongoClient
 from .worker import app
-from .medium_scraper import get_articles_url
+from .medium_scraper import get_articles_url, get_article
 
 client = MongoClient('mongodb://mongo:27017/articles')
 db = client.articles
 collection = db.medium
 
 @app.task
-def task_wait_3s():
-  print("long time task begin")
-  sleep(3)
-  print("long time task finished")
-  return random()
-
-@app.task
 def add_download(url):
-  # Download
-  # Parse
+  # Download & parse
+  article = get_article(url)
+
   # Store
-  ts = datetime.now().timestamp()
-  id = sha1(url.encode()).hexdigest()
+  article['timestamp'] = datetime.now().timestamp()
+  article['_id'] = sha1(url.encode()).hexdigest()
 
   try:
-    collection.insert_one({"_id": id, "name": url, 'timestamp': ts})
+    collection.insert_one(article)
   except:
     print("already in database")
 
