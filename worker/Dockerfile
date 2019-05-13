@@ -1,12 +1,6 @@
 FROM python:3.7-alpine3.9
 
-WORKDIR /tmp
-
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.9/main" >> /etc/apk/repositories && \
-  echo "http://dl-cdn.alpinelinux.org/alpine/v3.9/community" >> /etc/apk/repositories
-
-# install chromedriver
-RUN apk add --update gcc g++ gcc libxslt-dev chromium chromium-chromedriver
+RUN apk add --update g++ gcc libxslt-dev
 
 WORKDIR /
 ADD requirements.txt .
