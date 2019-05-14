@@ -4,13 +4,16 @@ from os import environ
 
 try:
   mongo_uri = environ["MONGO_URI"]
+  mongo_database = environ["MONGO_DATABASE"]
+  mongo_collection = environ["MONGO_COLLECTION"]
+
   connection = MongoClient(mongo_uri)
+  db = connection[mongo_database]
+  collection = db[mongo_collection]
 except:
   print("Could not connect to MongoDB")
   exit()
 
-db = connection.articles
-collection = db.medium
 
 results = collection.count_documents({})
 print("Number of results:", results)

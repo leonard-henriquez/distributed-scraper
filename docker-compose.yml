@@ -33,6 +33,8 @@ services:
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbit:${RABBITMQ_PORT}
       CELERY_RESULT_BACKEND: redis://:${REDIS_PASS}@redis:${REDIS_PORT}/0
       MONGO_URI: ${MONGO_URI}
+      MONGO_DATABASE: ${MONGO_DATABASE}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
   monitor:
     hostname: monitor
     image: mher/flower:latest
