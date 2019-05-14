@@ -10,7 +10,7 @@ instances:
 
     # Addional connection options
     #
-    password: mypass
+    password: ${REDIS_PASS}
     db: 0
     # socket_timeout: 5
 

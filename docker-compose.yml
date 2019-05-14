@@ -55,7 +55,12 @@ services:
       - "4444:4444"
   datadog:
     hostname: datadog
-    build: datadog
+    build:
+      context: datadog
+      args:
+        - REDIS_PASS
+        - RABBITMQ_USER
+        - RABBITMQ_PASS
     depends_on:
       - rabbit
       - worker
