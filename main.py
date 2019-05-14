@@ -36,12 +36,12 @@ def add_task(worker, tag, start_date, end_date):
 
 
 @click.command()
-@click.argument('tag')
+@click.argument('tags')
 @click.option('--start-date', '-a', help='Date to begin scrapping (YYYY/MM/DD)')
 @click.option('--end-date', '-z', help='Date to end scrapping (YYYY/MM/DD)')
 @click.option('--broker', '-b', help='Date to end scrapping (YYYY/MM/DD)')
 @click.option('--backend', '-e', help='Date to end scrapping (YYYY/MM/DD)')
-def main(tag, start_date, end_date, broker, backend):
+def main(tags, start_date, end_date, broker, backend):
   """Simple program to scrap medium by tags"""
   today = datetime.now().strftime("%Y/%m/%d")
 
@@ -59,10 +59,12 @@ def main(tag, start_date, end_date, broker, backend):
 
   worker = get_worker(broker, backend)
 
-  click.echo("Tag selected: {tag}".format(tag=tag))
-  click.echo("Starting adding new items to download source...")
-  add_task(worker, tag, start_date, end_date)
-  click.echo("Done!")
+
+  for tag in tags.split(','):
+    click.echo("Tag selected: {tag}".format(tag=tag))
+    click.echo("Starting adding new items to download source...")
+    add_task(worker, tag, start_date, end_date)
+    click.echo("Done!")
 
 
 if __name__ == '__main__':
