@@ -1,4 +1,6 @@
+import re
 from unicodedata import normalize
+from datetime import datetime
 from bs4 import BeautifulSoup
 from .proxy import get_session
 
@@ -21,6 +23,7 @@ def get_urls_from_cards(cards):
     if link is not None:
       url = link['href']
       url = url[:url.find('?')]
+      url = url.lower()
       urls.append(url)
   return urls
 
@@ -74,24 +77,52 @@ def get_article(url):
   soup = BeautifulSoup(response.content, 'html.parser')
 
   article = {}
-  article['url'] = url
+  article['url'] = string_sanitizer(url).lower()
 
-  title = soup.findAll('title')[0]
-  title = title.get_text()
-  article['title'] = string_sanitizer(title)
-
-  author = soup.findAll('meta', {"name": "author"})[0]
-  author = author.get('content')
-  article['author'] = string_sanitizer(author)
+  title = soup.find('title').get_text()
+  article['title'] = title
 
   try:
-    claps = soup.findAll('button', {"data-action":"show-recommends"})[0].get_text().split()[0]
+    lang = soup.find('article', {"lang": True}).get('lang')
+    article['lang'] = string_sanitizer(lang).lower()
+  except:
+    pass
+
+  try:
+    ts = soup.find('time').get('datetime')
+    ts = datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S.%fZ")
+    article['timestamp_published'] = ts.timestamp()
+  except:
+    pass
+
+  author = soup.find('meta', {"name": "author"}).get('content')
+  article['author'] = author
+
+  author_link = soup.find('link', {"rel": "author"}).get('href')
+  article['author_link'] = string_sanitizer(author_link).lower()
+
+  try:
+    author_site = soup.find('meta', {"property": "og:site_name"}).get('content')
+    article['author_site'] = string_sanitizer(author_site).lower()
+  except:
+    pass
+
+  try:
+    tags_1 = soup.findAll('a', attrs={"data-action-source": "post", "href": re.compile("https?://medium.com/tag/")})
+    tags_2 = soup.findAll('a', attrs={"data-action-source": "post", "data-collection-slug": True})
+    tags = tags_1 + tags_2
+    article['tags'] = [string_sanitizer(x.get_text().lower()) for x in tags]
+  except:
+    pass
+
+  try:
+    claps = soup.find('button', {"data-action":"show-recommends"}).get_text().split()[0]
     article['claps'] = short_number_sanitizer(claps)
   except:
     article['claps'] = 0
 
   try:
-    reading_time = int(soup.findAll('span', {"class":"readingTime"})[0].get('title').split()[0])
+    reading_time = int(soup.find('span', {"class":"readingTime"}).get('title').split()[0])
     article['reading_time'] = reading_time
   except:
     article['reading_time'] = 0
@@ -100,6 +131,6 @@ def get_article(url):
   text = ''
   next_line = '\n'
   for paragraph in paragraphs:
-      text += string_sanitizer(paragraph.get_text()) + next_line
+      text += paragraph.get_text() + next_line
   article['text'] = text
   return article

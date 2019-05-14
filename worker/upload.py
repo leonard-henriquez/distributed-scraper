@@ -10,7 +10,7 @@ collection = db.medium
 
 def upload_article(article):
   url = article['url']
-  article['timestamp'] = datetime.now().timestamp()
+  article['timestamp_download'] = datetime.now().timestamp()
   article['_id'] = sha1(url.encode()).hexdigest()
 
   try:

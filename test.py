@@ -16,7 +16,7 @@ results = collection.count_documents({})
 print("Number of results:", results)
 
 if results != 0:
-  last = collection.find().sort("timestamp", -1).limit(1)
-  ts = datetime.fromtimestamp(last[0]["timestamp"])
+  last = collection.find().sort("timestamp_download", -1).limit(1)
+  ts = datetime.fromtimestamp(last[0]["timestamp_download"])
   print("Last input", ts.strftime("%d/%m/%y %H:%M"))
   print("Last input", last[0])
