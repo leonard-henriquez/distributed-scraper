@@ -1,6 +1,9 @@
 from celery import Celery
 from .settings import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 
+from datadog import initialize
+initialize(statsd_host='datadog')
+
 print('URL of broker: ', CELERY_BROKER_URL)
 print('URL of backend: ', CELERY_RESULT_BACKEND)
 

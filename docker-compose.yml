@@ -8,7 +8,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "${RABBITMQ_MGT_PORT}:15672"
+      - "${RABBITMQ_PORT}:5672"
     volumes:
       - /tmp/distributed-scraper/rabbitmq:/var/lib/rabbitmq
   redis:
@@ -43,6 +44,7 @@ services:
     environment:
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbit:${RABBITMQ_PORT}
       CELERY_RESULT_BACKEND: redis://:${REDIS_PASS}@redis:${REDIS_PORT}/0
+      DATADOG_HOST: datadog
   rproxy:
     hostname: rproxy
     image: mattes/rotating-proxy:latest
@@ -51,3 +53,16 @@ services:
     ports:
       - "5566:5566"
       - "4444:4444"
+  datadog:
+    hostname: datadog
+    build: datadog
+    depends_on:
+      - rabbit
+      - worker
+      - redis
+    environment:
+      DD_API_KEY: ${DATADOG_API_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
