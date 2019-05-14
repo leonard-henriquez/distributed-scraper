@@ -17,7 +17,7 @@ def add_download(self, url):
 
   return True
 
-@app.task(bind=True, autoretry_for=(Exception,), retry_backoff=5)
+@app.task(bind=True, autoretry_for=(Exception,), retry_backoff=15)
 def add_source(self, tag, str_date):
   urls = get_articles_url(tag, str_date)
 
