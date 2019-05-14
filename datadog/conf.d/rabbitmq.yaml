@@ -11,13 +11,13 @@ instances:
     ## @param rabbitmq_user - string - optional - default: guest
     ## RabbitMQ username to use when connecting to the API URL.
     #
-    rabbitmq_user: admin
+    rabbitmq_user: ${RABBITMQ_USER}
 
     ## @param rabbitmq_pass - string - optional - default: guest
     ## RabbitMQ password associated to the above username
     ## to use when connecting to the API URL.
     #
-    rabbitmq_pass: mypass
+    rabbitmq_pass: ${RABBITMQ_PASS}
 
     ## @param tag_families - boolean - optional - default: false
     ## to tag queue "families" based off of regex matching.
