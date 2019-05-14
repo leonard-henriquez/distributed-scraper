@@ -10,10 +10,8 @@ collection = db[MONGO_COLLECTION]
 
 def upload_article(article):
   url = article['url']
+  id = sha1(url.encode()).hexdigest()
+  article['_id'] = id
   article['timestamp_download'] = datetime.now().timestamp()
-  article['_id'] = sha1(url.encode()).hexdigest()
 
-  try:
-    collection.insert_one(article)
-  except:
-    print("already in database")
+  collection.update_one({ "_id": id }, article, True)
