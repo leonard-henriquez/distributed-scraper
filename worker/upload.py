@@ -14,4 +14,4 @@ def upload_article(article):
   article['_id'] = id
   article['timestamp_download'] = datetime.now().timestamp()
 
-  collection.update_one({ "_id": id }, article, True)
+  collection.update_one({"_id": id}, {"$set": article}, True)
